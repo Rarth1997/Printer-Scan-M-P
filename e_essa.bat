@@ -1,3 +1,7 @@
+set "WORKDIR=%TEMP%\PrinterTool"
+mkdir "%WORKDIR%" 2>nul
+cd /d "%WORKDIR%"
+
 @echo off
 title Ferramenta Avançada - Impressoras e SMB
 color 0E
