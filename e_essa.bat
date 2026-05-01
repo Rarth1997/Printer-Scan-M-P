@@ -315,6 +315,24 @@ echo === Todos os arquivos em: %pasta_destino% ===
 start "" "%pasta_destino%"
 exit /b
 
+:EXECUTAR_SEGURO
+set "arquivo=%~1"
+set "ext=%~x1"
+
+if /i "%ext%"==".exe" (
+    echo Executando %arquivo%...
+    "%arquivo%"
+) else if /i "%ext%"==".msi" (
+    echo Executando MSI...
+    msiexec /i "%arquivo%"
+) else if /i "%ext%"==".zip" (
+    echo Extraindo ZIP...
+    powershell -Command "Expand-Archive -Path '%arquivo%' -DestinationPath '%~dp1' -Force"
+) else (
+    start "" "%arquivo%"
+)
+goto :EOF
+
 :INSTALAR_HP4103
 cls
 echo =========================================================================
