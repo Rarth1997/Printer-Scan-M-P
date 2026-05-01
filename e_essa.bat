@@ -222,7 +222,7 @@ echo   [0] Voltar
 set /p opcao_mono="Digite a opcao: "
 
 
-if "%opcao_mono%"=="1" call :BAIXAR "Epson_Scanner_Producao" "https://gdlp01.c-wss.com/gds/9/0100009799/05/DR-C240_Driver_V.1.4.11712.18001SP4_Windows.zip" "Driver.zip" "https://gdlp01.c-wss.com/gds/0/0200006680/07/CaptureOnTouch_Pro_V5.5.1025.1217.zip" "CaptureOnTouch.zip"
+if "%opcao_mono%"=="1" call :BAIXAR_E_ABRIR "Epson_Scanner_Producao" "https://gdlp01.c-wss.com/gds/9/0100009799/05/DR-C240_Driver_V.1.4.11712.18001SP4_Windows.zip" "Driver.zip" "https://gdlp01.c-wss.com/gds/0/0200006680/07/CaptureOnTouch_Pro_V5.5.1025.1217.zip" "CaptureOnTouch.zip"
 if "%opcao_mono%"=="2" call :BAIXAR "Epson_Scanner_Producao" "https://download.brother.com/welcome/dlf106560/Y21F_C2_ULWT_PP-inst-J1.EXE" "ads4700.exe" 
 if "%opcao_mono%"=="3" call :BAIXAR "Epson_Scanner_Producao" "https://download.brother.com/welcome/dlf107270/Y15F_C1_ULWT_PP-inst-H1.EXE" "ads2800.exe"
 if "%opcao_mono%"=="4" call :BAIXAR "Epson_Scanner_Producao" "https://ftp.epson.com/drivers/DS530_Combo_AM.exe" "epson.exe"
