@@ -327,13 +327,16 @@ if /i "%ext%"==".exe" (
 ) else if /i "%ext%"==".msi" (
     echo Executando MSI...
     msiexec /i "%arquivo%"
-) else if /i "%ext%"==".zip" (
+else if /i "%ext%"==".zip" (
     echo Extraindo ZIP...
-    powershell -Command "Expand-Archive -Path '%arquivo%' -DestinationPath '%~dp1' -Force"
-) else (
-    start "" "%arquivo%"
+    set "dest=%~dp1%~n1"
+
+    powershell -Command "Expand-Archive -Path '%arquivo%' -DestinationPath '%dest%' -Force"
+
+    echo Abrindo pasta...
+    start "" "%dest%"
 )
-goto :EOF
+endlocal & goto :EOF
 
 :INSTALAR_HP4103
 cls
