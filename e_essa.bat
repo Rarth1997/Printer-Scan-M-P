@@ -286,8 +286,10 @@ set "pasta_destino=%USERPROFILE%\Downloads\Epson_%1"
 shift
 
 REM Criar pasta
-if not exist "%pasta_destino%" mkdir "%pasta_destino%"
-
+if not exist "%pasta_destino%\!nome[%%i]!" (
+    echo ERRO download incompleto
+    exit /b
+)
 echo.
 echo === Baixando para: %pasta_destino% ===
 
