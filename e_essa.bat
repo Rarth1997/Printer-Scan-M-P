@@ -213,7 +213,7 @@ echo                        Scanner de Producao
 echo =========================================================================
 echo.
 
-echo   [1] Epson DR-C240
+echo   [1] Canon DR-C240
 echo   [2] Brother ADS-4700
 echo   [3] Brother ADS-2800
 echo   [4] Epson DS-530
