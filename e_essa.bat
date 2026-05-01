@@ -119,9 +119,9 @@ if "%opcao_mono%"=="7" call :BAIXAR_E_ABRIR "Canon_6030" "https://gdlp01.c-wss.c
 if "%opcao_mono%"=="8" call :BAIXAR "Canon_1643_v1" "https://gdlp01.c-wss.com/gds/0/0100010410/03/iR1643MFDriverv6502W64.exe" "Canon_1643_v1.exe" "https://gdlp01.c-wss.com/gds/8/0200006868/03/winmfscanutilityv12102.exe" "Canon_Utility.exe" 
 if "%opcao_mono%"=="9" call :BAIXAR "Canon_1643_v2" "https://gdlp01.c-wss.com/gds/8/0100011188/01/iR1643iIIMFDriverV720W64.exe" "Canon_1643_v2.exe" "https://gdlp01.c-wss.com/gds/8/0200006868/03/winmfscanutilityv12102.exe" "Canon_Utility.exe" 
 if "%opcao_mono%"=="10" call :BAIXAR "Canon_1643_X_v2" "https://gdlp01.c-wss.com/gds/7/0100011197/01/MF1643iIIMFDriverV720W64.exe" "Canon_1643_X_v2.exe" "https://gdlp01.c-wss.com/gds/8/0200006868/03/winmfscanutilityv121₀2.exe" "Canon_Utility.exe" 
-if "%opcao_mono%"=="11" call :BAIXAR "Xerox_3020" "https://download.support.xerox.com/pub/drivers/3₀₂₀/drivers/win₁₀/ar/Xerox_Phaser_3₀₂₀_Windows_Print_Drivers_Utilities_V₁.₀₇.exe" "Xerox_3₀₂₀.exe"
-if "%opcao_mono%"=="12" call :BAIXAR "Xerox_205" "https://download.support.xerox.com/pub/drivers/B₂₀₅/drivers/win₁₀/ar/Xerox_B₂₀₅_Windows_Print_Drivers_Utilities_V₁.₁₂.exe" "Xerox_2₀₅.exe"
-if "%opcao_mono%"=="13" call :BAIXAR "Xerox_210" "https://download.support.xerox.com/pub/drivers/B₂₁₀/drivers/win₁₀/ar/Xerox_B₂₁₀_Windows_Print_Drivers_Utilities_V₁.₁₂.exe" "Xerox_2₁₀.exe"
+if "%opcao_mono%"=="11" call :BAIXAR "Xerox_3020" "https://download.support.xerox.com/pub/drivers/3₀₂₀/drivers/win₁₀/ar/Xerox_Phaser_3020_Windows_Print_Drivers_Utilities_V₁.₀₇.exe" "Xerox_3020.exe"
+if "%opcao_mono%"=="12" call :BAIXAR "Xerox_205" "https://download.support.xerox.com/pub/drivers/B₂₀₅/drivers/win₁₀/ar/Xerox_B205_Windows_Print_Drivers_Utilities_V₁.₁₂.exe" "Xerox_205.exe"
+if "%opcao_mono%"=="13" call :BAIXAR "Xerox_210" "https://download.support.xerox.com/pub/drivers/B₂₁₀/drivers/win₁₀/ar/Xerox_B210_Windows_Print_Drivers_Utilities_V₁.₁₂.exe" "Xerox_210.exe"
 if "%opcao_mono%"=="14" call :BAIXAR_E_ABRIR "Xerox_3335" "https://download.support.xerox.com/pub/drivers/GLOBALPRINTDRIVER/drivers/win10x64/ar/UNIV_5.1076.3.0_PCL6_x64.zip" "Xerox_3335.zip" "https://github.com/cyanfish/naps2/releases/download/v8.2.1/naps2-8.2.1-win-x64.exe" "naps2.exe"
 if "%opcao_mono%"=="15" call :BAIXAR_E_ABRIR "Xerox_3345" "https://download.support.xerox.com/pub/drivers/GLOBALPRINTDRIVER/drivers/win10x64/ar/UNIV_5.1076.3.0_PCL6_x64.zip" "Xerox_3345.zip" "https://github.com/cyanfish/naps2/releases/download/v8.2.1/naps2-8.2.1-win-x64.exe" "naps2.exe"
 if "%opcao_mono%"=="0" goto MENU0
@@ -249,10 +249,7 @@ set "url[!count!]=%~1"
 set "arq[!count!]=%~2"
 shift & shift
 goto LOOP_ARGS
-if exist "!arq[%%i]!" (
-    echo OK! Baixado: !arq[%%i]!
-    timeout /t 2 /nobreak >nul
-)
+
 
 rem Depois que baixar todos, abrir a pasta
 if %%i==%count% (
@@ -271,13 +268,13 @@ for /l %%i in (1,1,%count%) do (
     ) else (
         curl -L -# -o "!arq[%%i]!" "!url[%%i]!"
     )
-    if exist "!arq[%%i]!" (
-        echo OK! Iniciando !arq[%%i]!...
-        start "" "!arq[%%i]!"
-        timeout /t 2 /nobreak >nul
-    ) else (
-        echo ERRO ao baixar !arq[%%i]!
-    )
+  for %%A in ("!arq[%%i]!") do set "size=%%~zA"
+
+if "!size!"=="0" (
+    echo ERRO: arquivo corrompido!
+) else (
+    echo OK! Iniciando !arq[%%i]!...
+    call :EXECUTAR_SEGURO "!arq[%%i]!"
 )
 pause
 endlocal
