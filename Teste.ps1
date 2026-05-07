@@ -289,8 +289,8 @@ function Show-MonoMenu {
         "11" { Invoke-Baixar "Xerox_3020" "https://download.support.xerox.com/pub/drivers/3020/drivers/win10/ar/Xerox_Phaser_3020_Windows_Print_Drivers_Utilities_V1.07.exe" "Xerox_3020.exe" }
         "12" { Invoke-Baixar "Xerox_205" "https://download.support.xerox.com/pub/drivers/B205/drivers/win10/ar/Xerox_B205_Windows_Print_Drivers_Utilities_V1.12.exe" "Xerox_205.exe" }
         "13" { Invoke-Baixar "Xerox_210" "https://download.support.xerox.com/pub/drivers/B210/drivers/win10/ar/Xerox_B210_Windows_Print_Drivers_Utilities_V1.12.exe" "Xerox_210.exe" }
-        "14" { Invoke-BaixarEAbrir "Xerox_3335" "https://download.support.xerox.com/pub/drivers/GLOBALPRINTDRIVER/drivers/win10x64/ar/UNIV_5.1076.3.0_PCL6_x64.zip" "Xerox_3335.zip" "https://github.com/cyanfish/naps2/releases/download/v8.2.1/naps2-8.2.1-win-x64.exe" "naps2.exe" }
-        "15" { Invoke-BaixarEAbrir "Xerox_3345" "https://download.support.xerox.com/pub/drivers/GLOBALPRINTDRIVER/drivers/win10x64/ar/UNIV_5.1076.3.0_PCL6_x64.zip" "Xerox_3345.zip" "https://github.com/cyanfish/naps2/releases/download/v8.2.1/naps2-8.2.1-win-x64.exe" "naps2.exe" }
+        "14" { Invoke-BaixarEAbrir "Xerox_3335" "https://download.support.xerox.com/pub/drivers/GLOBALPRINTDRIVER/drivers/win10x64/ar/UNIV_5.1076.3.0_PCL6_x64.zip" "Xerox_3335.zip" "https://download.support.xerox.com/pub/drivers/WC3335_WC3345/drivers/win10/en_GB/Xerox_WorkCentre_3335_Network_USB_Driver_Signed_v3.32.06.01.zip" "Scan.zip" "https://github.com/cyanfish/naps2/releases/download/v8.2.1/naps2-8.2.1-win-x64.exe" "naps2.exe" }
+        "15" { Invoke-BaixarEAbrir "Xerox_3345" "https://download.support.xerox.com/pub/drivers/GLOBALPRINTDRIVER/drivers/win10x64/ar/UNIV_5.1076.3.0_PCL6_x64.zip" "Xerox_3345.zip" "https://download.support.xerox.com/pub/drivers/WC3335_WC3345/drivers/win10/en_GB/Xerox_WorkCentre_3345_Network_USB_Driver_Signed_v3.32.06.01.zip" "Scan.zip" "https://github.com/cyanfish/naps2/releases/download/v8.2.1/naps2-8.2.1-win-x64.exe" "naps2.exe" }
         "0"  { Show-MainMenu }
         default { Show-MonoMenu }
     }
