@@ -171,80 +171,7 @@ function Invoke-BaixarEAbrir {
 }
 
 # ==================== INSTALAÇÃO ESPECIAL HP4103 ====================
-function Install-HP4103 {
-    Clear-Host
-    Write-ColorLog "`n=========================================================================" -Color Yellow
-    Write-ColorLog "                    Instalando Driver HP 4103 (V4)" -Color White
-    Write-ColorLog "=========================================================================" -Color Yellow
-    $exe = "HP_4103.exe"
-    $url = "https://ftp.hp.com/pub/softlib/software13/printers/LJ4101-4104/V4_DriveronlyWebpack-54.5.5369-LJ4101-4104_V4_DriveronlyWebpack.exe"
-    $pastaInf = "C:\HP_LJ4101-4104\HP_LJ4101-4104_V4"
-    $inf = "$pastaInf\hplo03744_x64.inf"
-    $driverName = "HP LaserJet Pro MFP 4101 4102 4103 4104 PCL-6 (V4)"
-    $printerName = "HP LaserJet Pro MFP 4103"
 
-    if (-not (Test-Path $exe)) {
-        Write-Host "Baixando driver..." -ForegroundColor Cyan
-        Download-File -Url $url -Destino "$Script:CurrentDir\$exe" | Out-Null
-    }
-    if (-not (Test-Path $inf)) {
-        Write-Host "Extraindo driver, aguarde..." -ForegroundColor Cyan
-        Start-AndWait -FilePath "$Script:CurrentDir\$exe" -Arguments "/s", "/v`"/qn`""
-    } else {
-        Write-Host "Driver já encontrado, pulando extração." -ForegroundColor Green
-    }
-
-    $tentativas = 0
-    while (-not (Test-Path $inf) -and $tentativas -lt 12) {
-        Start-Sleep -Seconds 5
-        $tentativas++
-    }
-    if (-not (Test-Path $inf)) {
-        Write-Host "ERRO: Pasta não criada após extração." -ForegroundColor Red
-        Read-Host "Pressione ENTER"
-        return
-    }
-    Write-Host "Driver encontrado!" -ForegroundColor Green
-
-    Write-Host "Registrando driver..." -ForegroundColor Cyan
-    pnputil /add-driver "$inf" /install
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "ERRO ao registrar! Rode como Administrador." -ForegroundColor Red
-        Read-Host "Pressione ENTER"
-        return
-    }
-
-    $ip = Read-Host "`nDigite o IP da impressora (ex: 192.168.1.100)"
-    if (-not $ip) {
-        Write-Host "IP inválido!" -ForegroundColor Red
-        Read-Host "Pressione ENTER"
-        return
-    }
-
-    Write-Host "Criando porta TCP/IP..." -ForegroundColor Cyan
-    if (-not (Get-PrinterPort -Name "IP_$ip" -ErrorAction SilentlyContinue)) {
-        Add-PrinterPort -Name "IP_$ip" -PrinterHostAddress $ip
-    }
-
-    Write-Host "Adicionando driver ao spooler..." -ForegroundColor Cyan
-    if (-not (Get-PrinterDriver -Name $driverName -ErrorAction SilentlyContinue)) {
-        Add-PrinterDriver -Name $driverName -InfPath $inf
-    }
-
-    Write-Host "Criando impressora..." -ForegroundColor Cyan
-    if (-not (Get-Printer -Name $printerName -ErrorAction SilentlyContinue)) {
-        Add-Printer -Name $printerName -DriverName $driverName -PortName "IP_$ip"
-    } else {
-        Set-Printer -Name $printerName -PortName "IP_$ip"
-    }
-
-    if (Get-Printer -Name $printerName -ErrorAction SilentlyContinue) {
-        Write-ColorLog "`n  Impressora '$printerName' instalada! IP: $ip" -Color Green
-    } else {
-        Write-Host "ATENÇÃO: Verifique em Dispositivos e Impressoras." -ForegroundColor Yellow
-    }
-    Read-Host "`nPressione ENTER"
-}
 
 # ==================== MENUS ====================
 function Show-MainMenu {
@@ -264,23 +191,35 @@ function Show-MainMenu {
 "@
     $opcao = Read-Host "`nDigite a opcao"
     switch ($opcao) {
-        "1" {
-            Write-Host "Aguarde, baixando PrintWay..." -ForegroundColor Cyan
-            $url = "https://help.printwayy.com/wp-content/uploads/utilitarios/Setup%20PrintWayy.exe"
-            $dest = "$Script:CurrentDir\SetupPrintWayy.exe"
-            if (Download-File -Url $url -Destino $dest) {
-                Write-Host "Download OK! Iniciando..." -ForegroundColor Green
-                Start-Process $dest
-            }
-            $chrome = "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe"
-            if (Test-Path $chrome) {
-                Start-Process $chrome -ArgumentList "https://app.printwayy.com/Account/Login?ReturnUrl=/"
-            } else {
-                Write-Host "Chrome não encontrado. Abra manualmente: https://app.printwayy.com" -ForegroundColor Yellow
-            }
-            Read-Host "`nPressione ENTER"
-            Show-MainMenu
-        }
+       "1" {
+    Write-Host "Aguarde, baixando PrintWay..." -ForegroundColor Cyan
+    $url = "https://help.printwayy.com/wp-content/uploads/utilitarios/Setup%20PrintWayy.exe"
+    $dest = "$Script:CurrentDir\SetupPrintWayy.exe"
+    if (Download-File -Url $url -Destino $dest) {
+        Write-Host "Download OK! Iniciando..." -ForegroundColor Green
+        Start-Process $dest
+    }
+    # Abre o navegador em modo anônimo/privado
+    $chrome = "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe"
+    $edge = "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe"
+    $firefox = "${env:ProgramFiles}\Mozilla Firefox\firefox.exe"
+    
+    if (Test-Path $chrome) {
+        Start-Process $chrome -ArgumentList "--incognito", "https://app.printwayy.com/Account/Login?ReturnUrl=/"
+    }
+    elseif (Test-Path $edge) {
+        Start-Process $edge -ArgumentList "--inprivate", "https://app.printwayy.com/Account/Login?ReturnUrl=/"
+    }
+    elseif (Test-Path $firefox) {
+        Start-Process $firefox -ArgumentList "--private-window", "https://app.printwayy.com/Account/Login?ReturnUrl=/"
+    }
+    else {
+        Write-Host "Navegador compatível não encontrado. Abra manualmente: https://app.printwayy.com" -ForegroundColor Yellow
+        Start-Process "https://app.printwayy.com/Account/Login?ReturnUrl=/"
+    }
+    Read-Host "`nPressione ENTER"
+    Show-MainMenu
+}
         "2" { Show-MonoMenu }
         "3" { Show-InkjetMenu }
         "4" { Show-ThermalMenu }
