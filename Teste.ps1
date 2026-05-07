@@ -1,21 +1,72 @@
-# Desabilita barra de progresso em todos os cmdlets (acelera MUITO)
-$ProgressPreference = 'SilentlyContinue'
-$VerbosePreference = 'SilentlyContinue'
-$DebugPreference = 'SilentlyContinue'
-#
-.SYNOPSIS
-    Ferramenta Avançada para Download e Instalação de Drivers de Impressoras e SMB
-.DESCRIPTION
-    Script em PowerShell equivalente ao original em Batch.
-    Suporta HP, Canon, Epson, Xerox, Samsung, Brother, impressoras térmicas e scanners.
-.NOTES
-    Autor: Rarth1997
-    Versão: 1.0 (conversão direta)
-#>
-
 # ==================== CONFIGURAÇÕES GLOBAIS ====================
 $ErrorActionPreference = "Continue"
-$Script:CurrentDir = Get-Location
+
+# Define uma pasta de trabalho FIXA (evita problemas de execução remota)
+$Script:WorkDir = Join-Path $env:TEMP "PrinterTool"
+if (-not (Test-Path $Script:WorkDir)) {
+    New-Item -ItemType Directory -Path $Script:WorkDir -Force | Out-Null
+}
+Set-Location $Script:WorkDir
+$Script:CurrentDir = $Script:WorkDir
+
+# ==================== FUNÇÕES AUXILIARES ====================
+function Write-ColorLog {
+    param([string]$Message, [string]$Color = "Yellow")
+    Write-Host $Message -ForegroundColor $Color
+}
+
+function Download-File {
+    param([string]$Url, [string]$Destino)
+    # Se Destino for apenas nome de arquivo (sem caminho), usa o WorkDir
+    if (-not (Split-Path $Destino -Parent)) {
+        $Destino = Join-Path $Script:WorkDir $Destino
+    }
+    Write-Host "Baixando $([System.IO.Path]::GetFileName($Destino))..." -ForegroundColor Cyan
+    $ProgressPreference = 'SilentlyContinue'
+    try {
+        $wc = New-Object System.Net.WebClient
+        $wc.Headers.Add("User-Agent", "Mozilla/5.0 Windows NT")
+        $wc.DownloadFile($Url, $Destino)
+        $wc.Dispose()
+        return $true
+    }
+    catch {
+        try {
+            & curl.exe -L --progress-bar -o "$Destino" "$Url" 2>$null
+            return $?
+        }
+        catch {
+            Start-BitsTransfer -Source $Url -Destination $Destino -Priority High -ErrorAction SilentlyContinue
+            return $?
+        }
+    }
+}
+
+function Start-AndWait {
+    param([string]$FilePath)
+    # Se for apenas nome, completa caminho
+    if (-not (Split-Path $FilePath -Parent)) {
+        $FilePath = Join-Path $Script:WorkDir $FilePath
+    }
+    if (-not (Test-Path $FilePath)) {
+        Write-Host "Arquivo não encontrado: $FilePath" -ForegroundColor Red
+        return $false
+    }
+    try {
+        $proc = Start-Process -FilePath $FilePath -PassThru -WindowStyle Normal
+        $proc.WaitForExit()
+        return $true
+    }
+    catch {
+        Write-Host "Erro ao executar $FilePath : $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# As funções Invoke-Baixar, Invoke-BaixarEAbrir e Install-HP4103 permanecem IGUAIS à sua versão,
+# mas lembre-se de que elas usam $Script:CurrentDir (agora fixo) e Download-File/Start-AndWait atualizados.
+
+# O resto do script (menus) permanece idêntico – nenhuma alteração necessária além do início.
 
 # ==================== FUNÇÕES AUXILIARES ====================
 function Write-ColorLog {
