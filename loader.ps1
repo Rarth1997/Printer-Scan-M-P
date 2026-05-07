@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$url = "https://raw.githubusercontent.com/Rarth1997/Printer-Scan-M-P/main/mp-printer.exe"
+$url = "https://raw.githubusercontent.com/Rarth1997/Printer-Scan-M-P/main/e_essa.bat"
 $out = "$env:TEMP\printer_tool.bat"
 
 Write-Host "Baixando script..." -ForegroundColor Cyan
