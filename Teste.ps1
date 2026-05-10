@@ -405,7 +405,7 @@ function Show-ScannerMenu {
     Write-ColorLog "                        Scanner de Producao" -Color White
     Write-ColorLog "=========================================================================" -Color Yellow
     Write-Host @"
-   [1] Epson DR-C240
+   [1] Canon DR-C240
    [2] Brother ADS-4700
    [3] Brother ADS-2800
    [4] Epson DS-530
