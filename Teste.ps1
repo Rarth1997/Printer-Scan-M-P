@@ -187,7 +187,7 @@ function Show-MainMenu {
    [5] Naps2
    [6] Advanced IP Scanner
    [7] Scanner de Producao
-   [8] Sem nome ainda
+   [8] Ainda Menu
    [0] Sair
 "@
     $opcao = Read-Host "`nDigite a opcao"
@@ -407,7 +407,7 @@ function Show-ScannerMenu {
     Write-ColorLog "                        Scanner de Producao" -Color White
     Write-ColorLog "=========================================================================" -Color Yellow
     Write-Host @"
-   [1] Canon DR-C240
+   [1] Epson DR-C240
    [2] Brother ADS-4700
    [3] Brother ADS-2800
    [4] Epson DS-530
@@ -422,7 +422,7 @@ function Show-ScannerMenu {
         "0" { Show-MainMenu }
         default { Show-ScannerMenu }
     }
-    Show-ScannerMen
+    Show-ScannerMenu
 }
 
 Function Show-AindaMenu {
@@ -436,13 +436,12 @@ Function Show-AindaMenu {
 "@
     $op = Read-Host "`nDigite a opcao"
     switch ($op) {
-        "1" { Invoke-Baixar "Samsung Universal Scanner" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M3370FD/UniversalScanDriver_V1.02.19.exe" "Driver.exe" 
+        "1" { Invoke-Baixar "Samsung Universal Scanner" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M3370FD/UniversalScanDriver_V1.02.19.exe" "Driver.exe" }
         "0" { Show-MainMenu }
         default { Show-AindaMenu }
     }
-    Show-AindaMen
+    Show-AindaMenu
 }
-   
    
 
 # ==================== INÍCIO ====================
