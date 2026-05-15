@@ -187,6 +187,7 @@ function Show-MainMenu {
    [5] Naps2
    [6] Advanced IP Scanner
    [7] Scanner de Producao
+   [8] Sem nome ainda
    [0] Sair
 "@
     $opcao = Read-Host "`nDigite a opcao"
@@ -246,6 +247,7 @@ function Show-MainMenu {
             Show-MainMenu
         }
         "7" { Show-ScannerMenu }
+        "8" { Show-AindaMenu }
         "0" { exit }
         default { Show-MainMenu }
     }
@@ -420,8 +422,28 @@ function Show-ScannerMenu {
         "0" { Show-MainMenu }
         default { Show-ScannerMenu }
     }
-    Show-ScannerMenu
+    Show-ScannerMen
 }
+
+Function Show-AindaMenu {
+ Clear-Host
+    Write-ColorLog "=========================================================================" -Color Yellow
+    Write-ColorLog "                       Ainda Menu" -Color White
+    Write-ColorLog "=========================================================================" -Color Yellow
+    Write-Host @"
+   [1] Samsung Universal Scanner
+   [0] Voltar
+"@
+    $op = Read-Host "`nDigite a opcao"
+    switch ($op) {
+        "1" { Invoke-Baixar "Samsung Universal Scanner" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M3370FD/UniversalScanDriver_V1.02.19.exe" "Driver.exe" 
+        "0" { Show-MainMenu }
+        default { Show-AindaMenu }
+    }
+    Show-AindaMen
+}
+   
+   
 
 # ==================== INÍCIO ====================
 # Verifica administrador (apenas aviso, não impede execução)
