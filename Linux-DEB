@@ -1,0 +1,529 @@
+#!/bin/bash
+
+# =========================================================
+# PRINTER TOOL LINUX - Debian / Linux Mint
+# =========================================================
+
+set +e
+
+# ==================== CONFIG ====================
+
+WORKDIR="/tmp/printertool"
+mkdir -p "$WORKDIR"
+
+DISTRO=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# ==================== LOG ====================
+
+log() {
+    echo -e "${2:-$YELLOW}$1${NC}"
+}
+
+pause() {
+    read -p "Pressione ENTER para continuar..."
+}
+
+# ==================== DOWNLOAD ====================
+
+download_file() {
+
+    URL="$1"
+    DEST="$2"
+
+    log "\nBaixando $(basename "$DEST")..." "$CYAN"
+
+    curl -L --fail --silent --show-error "$URL" -o "$DEST"
+
+    return $?
+}
+
+# ==================== INSTALLERS ====================
+
+install_deb() {
+
+    FILE="$1"
+
+    log "\nInstalando $(basename "$FILE")..." "$GREEN"
+
+    sudo apt install -y "$FILE"
+}
+
+# ==================== BASE ====================
+
+install_base() {
+
+    log "\nInstalando componentes base..." "$CYAN"
+
+    sudo apt update
+
+    sudo apt install -y \
+        cups \
+        cups-client \
+        cups-filters \
+        printer-driver-all \
+        system-config-printer \
+        sane \
+        sane-utils \
+        sane-airscan \
+        simple-scan \
+        avahi-daemon \
+        curl \
+        wget \
+        git \
+        unzip \
+        dialog \
+        whiptail
+
+    sudo systemctl enable cups
+    sudo systemctl start cups
+
+    log "\nBase instalada com sucesso." "$GREEN"
+}
+
+# ==================== HP ====================
+
+install_hp() {
+
+    log "\nInstalando HP Linux Imaging and Printing..." "$CYAN"
+
+    sudo apt install -y \
+        hplip \
+        hplip-gui
+
+    log "\nAbrindo HP Setup..." "$GREEN"
+
+    hp-setup
+}
+
+# ==================== EPSON ====================
+
+install_epson_l3210() {
+
+    FILE="$WORKDIR/epson-l3210.deb"
+
+    URL="https://download3.ebz.epson.net/dsc/f/03/00/15/42/17/8f8ec2fbb9d6a7e6f7b8a1b4f8f9d3f0f4f5d2c1/epson-inkjet-printer-escpr2_1.1.49-1_amd64.deb"
+
+    download_file "$URL" "$FILE"
+
+    install_deb "$FILE"
+}
+
+# ==================== BROTHER ====================
+
+install_brother_generic() {
+
+    log "\nInstalando suporte Brother..." "$CYAN"
+
+    sudo apt install -y \
+        printer-driver-brlaser
+
+    log "\nDriver Brother instalado." "$GREEN"
+}
+
+# ==================== SAMSUNG ====================
+
+install_samsung() {
+
+    sudo apt install -y printer-driver-splix
+
+    curl -L \
+    https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M4580FX/uld_V1.00.39_01.17.tar.gz \
+    -o /tmp/uld.tar.gz
+
+    cd /tmp || exit
+
+    tar -xzf uld.tar.gz
+
+    cd uld || exit
+
+  yes | sudo ./install.sh >/dev/null 2>&1
+}
+# ==================== SCANNER ====================
+
+install_scanner_tools() {
+
+    log "\nInstalando ferramentas scanner..." "$CYAN"
+
+    sudo apt install -y \
+        simple-scan \
+        sane \
+        sane-utils \
+        sane-airscan \
+        xsane
+
+    log "\nFerramentas scanner instaladas." "$GREEN"
+}
+
+# ==================== DETECÇÃO ====================
+
+detect_printers() {
+
+    log "\nImpressoras encontradas:\n" "$GREEN"
+
+    lpinfo -v
+
+    echo
+}
+
+detect_scanners() {
+
+    log "\nScanners encontrados:\n" "$GREEN"
+
+    scanimage -L
+
+    echo
+}
+
+detect_usb() {
+
+    log "\nUSB Devices:\n" "$GREEN"
+
+    lsusb
+
+    echo
+}
+
+# ==================== NAPS2 ====================
+
+install_naps2() {
+
+    F# Download the NAPS2 public key
+ curl -fsSL https://www.naps2.com/naps2-public.pgp | sudo gpg --dearmor -o /etc/apt/keyrings/naps2.gpg
+
+ # Add NAPS2 as an Apt source
+ echo "deb [signed-by=/etc/apt/keyrings/naps2.gpg] https://downloads.naps2.com ./" | sudo tee /etc/apt/sources.list.d/naps2.list >/dev/null
+
+ # Install NAPS2
+ sudo apt update
+ sudo apt install naps2
+
+ pause
+ naps2
+
+}
+
+# ==================== MENUS ====================
+
+show_hp_menu() {
+
+    clear
+
+    log "================ HP ================" "$CYAN"
+
+    echo "1) Instalar HPLIP"
+    echo "0) Voltar"
+
+    echo
+
+    read -p "Escolha: " OP
+
+    case $OP in
+
+        1)
+            install_hp
+            ;;
+
+        0)
+            show_main_menu
+            ;;
+
+    esac
+
+    pause
+    show_hp_menu
+}
+
+show_epson_menu() {
+
+    clear
+
+    log "============== EPSON ==============" "$CYAN"
+
+    echo "1) Epson L3210"
+    echo "0) Voltar"
+
+    echo
+
+    read -p "Escolha: " OP
+
+    case $OP in
+
+        1)
+            install_epson_l3210
+            ;;
+
+        0)
+            show_main_menu
+            ;;
+
+    esac
+
+    pause
+    show_epson_menu
+}
+
+show_samsung_menu() {
+
+    clear
+
+    log "============= SAMSUNG =============" "$CYAN"
+
+    echo "1) Instalar SPLIX"
+    echo "2) Instalar ULD Completo"
+    echo "3) Detectar Impressora Samsung"
+    echo "4) Detectar Scanner Samsung"
+    echo "0) Voltar"
+
+    echo
+
+    read -p "Escolha: " OP
+
+    case $OP in
+
+        1)
+
+            log "\nInstalando SPLIX..." "$CYAN"
+
+            sudo apt update
+
+            sudo apt install -y \
+                printer-driver-splix
+
+            log "\nSPLIX instalado com sucesso." "$GREEN"
+
+            ;;
+
+        2)
+
+            log "\nInstalando Samsung ULD..." "$CYAN"
+
+            sudo apt install -y \
+                cups \
+                sane \
+                sane-utils \
+                printer-driver-splix
+
+            cd /tmp || return
+
+            rm -rf uld*
+            
+            curl -L \
+            https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M4580FX/uld_V1.00.39_01.17.tar.gz \
+            -o uld.tar.gz
+
+            tar -xzf uld.tar.gz
+
+            cd uld || return
+
+            yes | sudo ./install.sh >/dev/null 2>&1
+
+            log "\nSamsung ULD instalada." "$GREEN"
+
+            ;;
+
+        3)
+
+            log "\nImpressoras Samsung encontradas:\n" "$GREEN"
+
+            lpinfo -v | grep -i samsung
+
+            echo
+
+            ;;
+
+        4)
+
+            log "\nScanners Samsung encontrados:\n" "$GREEN"
+
+            scanimage -L | grep -i samsung
+
+            echo
+
+            ;;
+
+        0)
+
+            show_main_menu
+
+            return
+
+            ;;
+
+        *)
+
+            log "\nOpção inválida." "$RED"
+
+            ;;
+
+    esac
+
+    pause
+
+    show_samsung_menu
+}
+show_scanner_menu() {
+
+    clear
+
+    log "============= SCANNERS ============" "$CYAN"
+
+    echo "1) Instalar ferramentas scanner"
+    echo "2) Detectar scanners"
+    echo "0) Voltar"
+
+    echo
+
+    read -p "Escolha: " OP
+
+    case $OP in
+
+        1)
+            install_scanner_tools
+            ;;
+
+        2)
+            detect_scanners
+            ;;
+
+        0)
+            show_main_menu
+            ;;
+
+    esac
+
+    pause
+    show_scanner_menu
+}
+
+show_detect_menu() {
+
+    clear
+
+    log "============= DETECÇÃO ============" "$CYAN"
+
+    echo "1) Detectar impressoras"
+    echo "2) Detectar scanners"
+    echo "3) Detectar USB"
+    echo "0) Voltar"
+
+    echo
+
+    read -p "Escolha: " OP
+
+    case $OP in
+
+        1)
+            detect_printers
+            ;;
+
+        2)
+            detect_scanners
+            ;;
+
+        3)
+            detect_usb
+            ;;
+
+        0)
+            show_main_menu
+            ;;
+
+    esac
+
+    pause
+    show_detect_menu
+}
+
+# ==================== MENU PRINCIPAL ====================
+
+show_main_menu() {
+
+    clear
+
+    log "==================================================" "$YELLOW"
+    log "            PRINTER TOOL LINUX MINT" "$GREEN"
+    log "==================================================" "$YELLOW"
+
+    echo "1) Instalar base"
+    echo "2) HP"
+    echo "3) Epson"
+    echo "4) Samsung"
+    echo "5) Brother"
+    echo "6) Scanner"
+    echo "7) NAPS2"
+    echo "8) Detecção"
+    echo "0) Sair"
+
+    echo
+
+    read -p "Escolha: " OP
+
+    case $OP in
+
+        1)
+            install_base
+            ;;
+
+        2)
+            show_hp_menu
+            ;;
+
+        3)
+            show_epson_menu
+            ;;
+
+        4)
+            show_samsung_menu
+            ;;
+
+        5)
+            install_brother_generic
+            ;;
+
+        6)
+            show_scanner_menu
+            ;;
+
+        7)
+            install_naps2
+            ;;
+
+        8)
+            show_detect_menu
+            ;;
+
+        0)
+            exit
+            ;;
+
+    esac
+
+    pause
+    show_main_menu
+}
+
+# ==================== INIT ====================
+
+clear
+
+log "Detectando sistema..." "$CYAN"
+
+if [[ "$DISTRO" != "linuxmint" && "$DISTRO" != "ubuntu" && "$DISTRO" != "debian" ]]; then
+
+    log "\nDistribuição não suportada." "$RED"
+
+    exit 1
+fi
+
+if [[ $EUID -ne 0 ]]; then
+
+    log "\nRecomendado executar com sudo." "$YELLOW"
+fi
+
+show_main_menu
