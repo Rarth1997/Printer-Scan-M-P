@@ -2,6 +2,7 @@
 
 # =========================================================
 # PRINTER TOOL LINUX - Debian / Linux Mint / Ubuntu
+# Com SMB1, SMB3 e Remoção Samba
 # =========================================================
 
 set -e  # Para o script em caso de erro grave (mas comandos críticos tratamos separadamente)
@@ -97,7 +98,6 @@ install_samsung_uld() {
     curl -L -o uld.tar.gz "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M4580FX/uld_V1.00.39_01.17.tar.gz"
     tar -xzf uld.tar.gz
     cd uld || return
-    # Executa o instalador de forma não interativa
     echo "y" | sudo ./install.sh >/dev/null 2>&1
     log "\nSamsung ULD instalada." "$GREEN"
 }
@@ -140,14 +140,280 @@ detect_usb() {
 
 install_naps2() {
     log "\nInstalando NAPS2 (digitalização)..." "$CYAN"
-    # Download da chave pública
     curl -fsSL https://www.naps2.com/naps2-public.pgp | sudo gpg --dearmor -o /etc/apt/keyrings/naps2.gpg
-    # Adicionar repositório
     echo "deb [signed-by=/etc/apt/keyrings/naps2.gpg] https://downloads.naps2.com ./" | sudo tee /etc/apt/sources.list.d/naps2.list >/dev/null
     sudo apt update
     sudo apt install -y naps2
     log "\nNAPS2 instalado. Abrindo..." "$GREEN"
     naps2
+}
+
+# ==================== NOVAS FUNÇÕES SMB ====================
+
+# 1. Configurar SMB1 (compartilhamento no home, interativo)
+configurar_smb1() {
+    clear
+    log "========== Configurar SMB 1.0 (Impressoras antigas) ==========" "$CYAN"
+    echo ""
+    log "O SMB1 é necessário para impressoras muito antigas." "$YELLOW"
+    echo ""
+
+    read -p "📁 Nome da pasta que será criada no seu HOME (ex: Impressoras_Antigas): " NOME_PASTA
+    NOME_PASTA=${NOME_PASTA:-"Impressoras_Antigas"}
+    PASTA="$HOME/$NOME_PASTA"
+
+    read -p "🏷️  Nome do compartilhamento (ex: Impressoras, HP_Laser): " NOME_COMPART
+    NOME_COMPART=${NOME_COMPART:-"Impressoras"}
+
+    read -p "👤 Usuário do Samba (padrão: $USER): " USUARIO_SAMBA
+    USUARIO_SAMBA=${USUARIO_SAMBA:-$USER}
+
+    read -s -p "🔒 Senha para o usuário $USUARIO_SAMBA (padrão 123456): " SENHA_SAMBA
+    echo ""
+    SENHA_SAMBA=${SENHA_SAMBA:-"123456"}
+
+    log "\nInstalando Samba..." "$CYAN"
+    sudo apt update
+    sudo apt install samba -y
+
+    # Criar usuário Linux se não existir
+    if ! id "$USUARIO_SAMBA" &>/dev/null; then
+        sudo useradd -m -s /bin/bash "$USUARIO_SAMBA"
+        echo "$USUARIO_SAMBA:$SENHA_SAMBA" | sudo chpasswd
+    fi
+
+    # Adicionar ao Samba
+    (echo "$SENHA_SAMBA"; echo "$SENHA_SAMBA") | sudo smbpasswd -a -s "$USUARIO_SAMBA"
+    sudo smbpasswd -e "$USUARIO_SAMBA"
+
+    # Criar pasta no home
+    mkdir -p "$PASTA"
+    chown "$USUARIO_SAMBA":"$USUARIO_SAMBA" "$PASTA"
+    chmod 0777 "$PASTA"
+
+    # Backup da config
+    sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bkp
+
+    # Gerar configuração SMB1
+    sudo bash -c "cat > /etc/samba/smb.conf <<EOF
+[global]
+workgroup = WORKGROUP
+server string = SMB1 Printer Server - $(hostname)
+security = user
+map to guest = never
+server min protocol = NT1
+server max protocol = NT1
+client min protocol = NT1
+client max protocol = NT1
+ntlm auth = yes
+max smbd processes = 1000
+socket options = TCP_NODELAY SO_RCVBUF=8192 SO_SNDBUF=8192
+log file = /var/log/samba/log.%m
+max log size = 1000
+
+[$NOME_COMPART]
+path = $PASTA
+browseable = yes
+read only = no
+valid users = $USUARIO_SAMBA
+force user = $USUARIO_SAMBA
+force group = $USUARIO_SAMBA
+create mask = 0777
+directory mask = 0777
+EOF"
+
+    sudo systemctl restart smbd nmbd
+    sudo systemctl enable smbd nmbd
+
+    # Firewall
+    if command -v ufw >/dev/null 2>&1; then
+        sudo ufw allow 137/udp 138/udp 139/tcp 445/tcp
+        sudo ufw reload
+    fi
+
+    IP=$(hostname -I | awk '{print $1}')
+    clear
+    log "========== SMB1 configurado com sucesso ==========" "$GREEN"
+    echo "📂 Pasta local: $PASTA"
+    echo "🔗 Acesso na rede: \\\\$IP\\$NOME_COMPART"
+    echo "👤 Usuário: $USUARIO_SAMBA"
+    echo "🔒 Senha: $SENHA_SAMBA"
+    pause
+}
+
+# 2. Configurar SMB3 (alta performance)
+configurar_smb3() {
+    clear
+    log "========== Configurar SMB 3.0 (Alta Performance) ==========" "$CYAN"
+    echo ""
+
+    read -p "📁 Nome da pasta no HOME (ex: Rede_Alta): " NOME_PASTA
+    NOME_PASTA=${NOME_PASTA:-"Rede_Alta"}
+    PASTA="$HOME/$NOME_PASTA"
+
+    read -p "🏷️  Nome do compartilhamento (ex: Rede, Dados): " NOME_COMPART
+    NOME_COMPART=${NOME_COMPART:-"REDE"}
+
+    read -p "👤 Usuário do Samba (padrão: $USER): " USUARIO_SAMBA
+    USUARIO_SAMBA=${USUARIO_SAMBA:-$USER}
+
+    read -s -p "🔒 Senha (padrão 123456): " SENHA_SAMBA
+    echo ""
+    SENHA_SAMBA=${SENHA_SAMBA:-"123456"}
+
+    log "\nInstalando Samba..." "$CYAN"
+    sudo apt update
+    sudo apt install samba -y
+
+    if ! id "$USUARIO_SAMBA" &>/dev/null; then
+        sudo useradd -m -s /bin/bash "$USUARIO_SAMBA"
+        echo "$USUARIO_SAMBA:$SENHA_SAMBA" | sudo chpasswd
+    fi
+
+    (echo "$SENHA_SAMBA"; echo "$SENHA_SAMBA") | sudo smbpasswd -a -s "$USUARIO_SAMBA"
+    sudo smbpasswd -e "$USUARIO_SAMBA"
+
+    mkdir -p "$PASTA"
+    chown "$USUARIO_SAMBA":"$USUARIO_SAMBA" "$PASTA"
+    chmod 0777 "$PASTA"
+
+    # Otimizações de kernel
+    if ! grep -q "soft nofile 16384" /etc/security/limits.conf; then
+        echo "* soft nofile 16384" | sudo tee -a /etc/security/limits.conf
+        echo "* hard nofile 32768" | sudo tee -a /etc/security/limits.conf
+    fi
+
+    sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bkp
+
+    sudo bash -c "cat > /etc/samba/smb.conf <<EOF
+[global]
+workgroup = WORKGROUP
+server string = Samba High Performance - $(hostname)
+security = user
+map to guest = Bad User
+ntlm auth = yes
+server min protocol = SMB2_10
+server max protocol = SMB3
+client min protocol = SMB2
+client max protocol = SMB3
+max connections = 0
+deadtime = 15
+socket options = TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=131072 SO_SNDBUF=131072
+aio read size = 1
+aio write size = 1
+log file = /var/log/samba/log.%m
+max log size = 5000
+log level = 0
+
+[$NOME_COMPART]
+path = $PASTA
+browseable = yes
+read only = no
+guest ok = yes
+public = yes
+writable = yes
+force user = $USUARIO_SAMBA
+force group = $USUARIO_SAMBA
+create mask = 0777
+directory mask = 0777
+EOF"
+
+    sudo systemctl restart smbd nmbd
+    sudo systemctl enable smbd nmbd
+
+    if command -v ufw >/dev/null 2>&1; then
+        sudo ufw allow 139/tcp 445/tcp
+        sudo ufw reload
+    fi
+
+    IP=$(hostname -I | awk '{print $1}')
+    clear
+    log "========== SMB3 configurado com sucesso ==========" "$GREEN"
+    echo "📂 Pasta local: $PASTA"
+    echo "🔗 Acesso: \\\\$IP\\$NOME_COMPART"
+    echo "👤 Usuário: $USUARIO_SAMBA"
+    echo "🔒 Senha: $SENHA_SAMBA"
+    echo "✅ Convidados (guest) têm acesso"
+    pause
+}
+
+# 3. Remover Samba (desfazer configurações)
+remover_samba() {
+    clear
+    log "========== Remoção Completa do Samba ==========" "$RED"
+    echo ""
+
+    read -p "👤 Nome do usuário Samba que foi criado (padrão: $USER): " USUARIO_SAMBA
+    USUARIO_SAMBA=${USUARIO_SAMBA:-$USER}
+
+    read -p "📁 Caminho completo da pasta compartilhada (ex: $HOME/Impressoras_Antigas): " PASTA
+    if [ -z "$PASTA" ]; then
+        echo "Tentando detectar pastas com permissão 0777 no home..."
+        PASTA=$(find "$HOME" -maxdepth 2 -type d -perm 0777 2>/dev/null | head -1)
+        if [ -n "$PASTA" ]; then
+            echo "Detectada: $PASTA"
+        else
+            echo "Não detectado. Pule a remoção da pasta."
+        fi
+    fi
+
+    read -p "🏷️  Nome do compartilhamento no Samba (ex: Impressoras, REDE): " NOME_COMPART
+    read -p "🗑️  Remover também a pasta física ($PASTA)? (s/N): " REMOVER_PASTA
+    read -p "🧑 Remover o usuário Linux '$USUARIO_SAMBA'? (s/N): " REMOVER_USUARIO
+    read -p "⚙️  Remover limites de kernel (nofile) do SMB3? (s/N): " REMOVER_KERNEL
+
+    log "\nParando serviços..." "$CYAN"
+    sudo systemctl stop smbd nmbd winbind 2>/dev/null
+    sudo systemctl disable smbd nmbd winbind 2>/dev/null
+
+    log "Removendo usuário Samba..." "$CYAN"
+    sudo smbpasswd -x "$USUARIO_SAMBA" 2>/dev/null
+    sudo pdbedit -x "$USUARIO_SAMBA" 2>/dev/null
+
+    if [[ "$REMOVER_USUARIO" =~ ^[Ss]$ ]]; then
+        if id "$USUARIO_SAMBA" &>/dev/null; then
+            sudo userdel -r "$USUARIO_SAMBA" 2>/dev/null
+            echo "Usuário Linux removido."
+        fi
+    fi
+
+    if [[ "$REMOVER_PASTA" =~ ^[Ss]$ ]] && [ -d "$PASTA" ]; then
+        sudo rm -rf "$PASTA"
+        echo "Pasta removida."
+    fi
+
+    log "Limpando configuração do Samba..." "$CYAN"
+    BACKUP="/etc/samba/smb.conf.bkp"
+    CONF="/etc/samba/smb.conf"
+    if [ -f "$BACKUP" ]; then
+        sudo cp "$BACKUP" "$CONF"
+        echo "Backup restaurado."
+    elif [ -n "$NOME_COMPART" ]; then
+        sudo sed -i "/^\[$NOME_COMPART\]/,/^$/d" "$CONF"
+        echo "Compartilhamento removido do smb.conf."
+    fi
+
+    sudo rm -rf /var/lib/samba/*.tdb /var/cache/samba/* /var/run/samba/* 2>/dev/null
+
+    log "Removendo regras de firewall..." "$CYAN"
+    if command -v ufw >/dev/null 2>&1; then
+        sudo ufw delete allow 137/udp 2>/dev/null
+        sudo ufw delete allow 138/udp 2>/dev/null
+        sudo ufw delete allow 139/tcp 2>/dev/null
+        sudo ufw delete allow 445/tcp 2>/dev/null
+        sudo ufw reload 2>/dev/null
+    fi
+
+    if [[ "$REMOVER_KERNEL" =~ ^[Ss]$ ]]; then
+        sudo sed -i '/soft nofile 16384/d' /etc/security/limits.conf
+        sudo sed -i '/hard nofile 32768/d' /etc/security/limits.conf
+        echo "Limites de kernel removidos."
+    fi
+
+    sudo systemctl restart smbd nmbd 2>/dev/null
+
+    log "\nRemoção concluída!" "$GREEN"
+    pause
 }
 
 # ==================== MENUS (CORRIGIDOS - SEM RECURSÃO) ====================
@@ -247,13 +513,13 @@ show_detect_menu() {
     done
 }
 
-# ==================== MENU PRINCIPAL ====================
+# ==================== MENU PRINCIPAL (COM NOVAS OPÇÕES) ====================
 
 show_main_menu() {
     while true; do
         clear
         log "==================================================" "$YELLOW"
-        log "            PRINTER TOOL LINUX" "$GREEN"
+        log "            PRINTER TOOL LINUX + SMB" "$GREEN"
         log "==================================================" "$YELLOW"
         echo "1) Instalar base"
         echo "2) HP"
@@ -263,6 +529,12 @@ show_main_menu() {
         echo "6) Scanner"
         echo "7) NAPS2"
         echo "8) Detecção"
+        echo ""
+        log "----- COMPARTILHAMENTO SAMBA -----" "$CYAN"
+        echo "9) Configurar SMB 1.0 (impressoras antigas)"
+        echo "10) Configurar SMB 3.0 (alta performance)"
+        echo "11) Remover Samba (desfazer tudo)"
+        echo ""
         echo "0) Sair"
         read -p "Escolha: " OP
         case $OP in
@@ -274,6 +546,9 @@ show_main_menu() {
             6) show_scanner_menu ;;
             7) install_naps2; pause ;;
             8) show_detect_menu ;;
+            9) configurar_smb1 ;;
+            10) configurar_smb3 ;;
+            11) remover_samba ;;
             0) exit 0 ;;
             *) log "\nOpção inválida." "$RED"; pause ;;
         esac
