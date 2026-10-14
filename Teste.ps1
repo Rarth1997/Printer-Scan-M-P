@@ -285,9 +285,9 @@ function Show-MonoMenu {
     switch ($op) {
         "1"  { Invoke-Baixar "HP_432" "https://ftp.hp.com/pub/softlib/software13/printers/herbs/LaserMFP432/HP_Laser_MFP_432_Full_Software_and_Drivers_1.09.exe" "HP_432.exe" }
         "2"  { Invoke-Baixar "HP_408" "https://ftp.hp.com/pub/softlib/software13/printers/herbs/Laser408/HP_Laser_408_Print_Driver_1.07.exe" "HP_408.exe" }
-        "3"  { Invoke-BaixarEAbrir "HP_4003" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4003.exe" }
-        "4"  { Invoke-BaixarEAbrir "HP_4103" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4103.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.8.6459-SJ0001_Full_Webpack.exe" "Scan.exe"}
-        "5"  { Invoke-BaixarEAbrir "HP_428" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_428.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.8.6459-SJ0001_Full_Webpack.exe" "HP_SJ0001.exe" }
+        "3"  { Invoke-BaixarEAbrir "HP_4003" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4003.zip" }
+        "4"  { Invoke-BaixarEAbrir "HP_4103" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4103.zip" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.8.6459-SJ0001_Full_Webpack.exe" "Scan.exe"}
+        "5"  { Invoke-BaixarEAbrir "HP_428" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_428/42540.zip" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.8.6459-SJ0001_Full_Webpack.exe" "HP_SJ0001.exe" }
         "6"  { Invoke-Baixar "Samsung" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M3370FD/SamsungUniversalPrintDriver3_V3.00.16.0101.01.exe" "SamsungDriver.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SS/Common_SW/WIN_EPM_V2.00.01.36.exe" "WIN_EPM_V2.00.01.36.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M5270LX/WIN_EDC_V2.02.61.exe" "SamsungEPM.exe" }
         "7"  { Invoke-Baixar "Brother_2540w" "https://download.brother.com/welcome/dlf106196/Y14B_C1_ULWL1_PP-inst-F1.EXE" "Brother.exe" }
         "8"  { Invoke-Baixar "Brother_8112DW" "https://download.brother.com/welcome/dlf004894/MFC-8912DW-inst-D1-usa.EXE" "Brother.exe" }
