@@ -262,7 +262,7 @@ function Show-MonoMenu {
    [1] HP 432
    [2] HP 408
    [3] HP 4003
-   [4] HP 4103
+   [4] HP 4103/42540
    [5] HP 428
    [6] Samsung 4020/4070/4080
    [7] Brother 2540W
@@ -285,9 +285,9 @@ function Show-MonoMenu {
     switch ($op) {
         "1"  { Invoke-Baixar "HP_432" "https://ftp.hp.com/pub/softlib/software13/printers/herbs/LaserMFP432/HP_Laser_MFP_432_Full_Software_and_Drivers_1.09.exe" "HP_432.exe" }
         "2"  { Invoke-Baixar "HP_408" "https://ftp.hp.com/pub/softlib/software13/printers/herbs/Laser408/HP_Laser_408_Print_Driver_1.07.exe" "HP_408.exe" }
-        "3"  { Invoke-Baixar "HP_4003" "https://ftp.hp.com/pub/softlib/software13/printers/LJ4001-4004/HPEasyStart-16.2.1-LJ4001-4004_UWWL_54_4_5341_Webpack.exe" "HP_4003.exe" }
-        "4"  { Invoke-Baixar "HP_4103" "https://ftp.hp.com/pub/softlib/software13/printers/LJ4101-4104/V4_DriveronlyWebpack-54.5.5369-LJ4101-4104_V4_DriveronlyWebpack.exe" "HP_4103.exe" "https://ftp.hp.com/pub/softlib/software13/printers/USS/ARM64_MFP/Full_Webpack-63.5.6118_ARM64-SJ0001_Full_Webpack.exe" "Scan.exe"}
-        "5"  { Invoke-Baixar "HP_428" "https://ftp.hp.com/pub/softlib/software13/printers/LJ/M428-M429/V4_DriveronlyWebpack-48.6.4638-LJM428-M429_V4_DriveronlyWebpack.exe" "HP_428.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.6.6364-SJ0001_Full_Webpack.exe" "HP_SJ0001.exe" }
+        "3"  { Invoke-BaixarEAbrir "HP_4003" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4003.exe" }
+        "4"  { Invoke-BaixarEAbrir "HP_4103" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4103.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.8.6459-SJ0001_Full_Webpack.exe" "Scan.exe"}
+        "5"  { Invoke-BaixarEAbrir "HP_428" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_428.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.8.6459-SJ0001_Full_Webpack.exe" "HP_SJ0001.exe" }
         "6"  { Invoke-Baixar "Samsung" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M3370FD/SamsungUniversalPrintDriver3_V3.00.16.0101.01.exe" "SamsungDriver.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SS/Common_SW/WIN_EPM_V2.00.01.36.exe" "WIN_EPM_V2.00.01.36.exe" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M5270LX/WIN_EDC_V2.02.61.exe" "SamsungEPM.exe" }
         "7"  { Invoke-Baixar "Brother_2540w" "https://download.brother.com/welcome/dlf106196/Y14B_C1_ULWL1_PP-inst-F1.EXE" "Brother.exe" }
         "8"  { Invoke-Baixar "Brother_8112DW" "https://download.brother.com/welcome/dlf004894/MFC-8912DW-inst-D1-usa.EXE" "Brother.exe" }
@@ -394,6 +394,7 @@ function Show-ThermalMenu {
                 "https://drive.usercontent.google.com/download?id=1K5vTsSQ-ZYxYYuRm_4nhLMKhYgXxqHRX&export=download&confirm=t&uuid=0940aa64-c35c-4a75-ab9c-ebac9850a126" "HPRTAres_driver.zip" `
                 "https://drive.usercontent.google.com/download?id=106KQt6JCRlyL7p9u9jUZNaNZU0zgj5YQ&export=download" "HPRTAres_designer.zip" `
                 "https://drive.usercontent.google.com/download?id=14R2GWMWGyB4TUB_Vp4EJxf5fHoTyaEqr&export=download" "HPRTAres_utility.zip"
+                
         }
         "0"  { Show-MainMenu }
         default { Show-ThermalMenu }
