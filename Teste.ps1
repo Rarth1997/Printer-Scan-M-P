@@ -371,6 +371,7 @@ function Show-ThermalMenu {
    [2] Bematech 
    [3] HPRT 
    [4] HPRT Ares/Apollo
+   [5] Zebra 7/8/10/11
    [0] Voltar
 "@
     $op = Read-Host "`nDigite a opcao"
@@ -390,12 +391,17 @@ function Show-ThermalMenu {
                 "https://drive.usercontent.google.com/download?id=17TRObdjips4ek71TjFKFkNx_ghrgOQHp&export=download&confirm=t&uuid=3997f980-4d77-4f09-8484-0d7cdd816513" "HPRTutili.zip"
         }
         "4" {
-            Invoke-BaixarEAbrir "HPRT_Ares" `
+            Invoke-BaixarEAbrir "HPRT_Ares_Apollo" `
                 "https://hprtbrasil.com.br/downloads/HPRT_12.0.exe" "HPRTAresApollo_driver.exe" `
                 "https://drive.usercontent.google.com/download?id=106KQt6JCRlyL7p9u9jUZNaNZU0zgj5YQ&export=download" "HPRTAres_designer.zip" `
                 "https://drive.usercontent.google.com/download?id=14R2GWMWGyB4TUB_Vp4EJxf5fHoTyaEqr&export=download" "HPRTAres_utility.zip"
                 
         }
+         "5" {
+            Invoke-BaixarEAbrir "Zebra" `
+                "https://www.bztech.com.br/arquivos/driver-zebra-zd220-e-zd230.zip" "Zebra.zip" `
+        }
+        
         "0"  { Show-MainMenu }
         default { Show-ThermalMenu }
     }
@@ -433,11 +439,13 @@ Function Show-AindaMenu {
     Write-ColorLog "=========================================================================" -Color Yellow
     Write-Host @"
    [1] Samsung Universal Scanner
+   [2] Revo Unistaller
    [0] Voltar
 "@
     $op = Read-Host "`nDigite a opcao"
     switch ($op) {
         "1" { Invoke-Baixar "Samsung Universal Scanner" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M3370FD/UniversalScanDriver_V1.02.19.exe" "Driver.exe" }
+        "2" { Invoke-BaixarEAbrir "Revo Unistaller" "https://revouninstaller.b-cdn.net/ruf272/RevoUninstaller_Portable.zip" "Revo_zip" }
         "0" { Show-MainMenu }
         default { Show-AindaMenu }
     }
