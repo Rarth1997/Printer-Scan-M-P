@@ -445,7 +445,7 @@ Function Show-AindaMenu {
     $op = Read-Host "`nDigite a opcao"
     switch ($op) {
         "1" { Invoke-Baixar "Samsung Universal Scanner" "https://ftp.hp.com/pub/softlib/software13/printers/SS/SL-M3370FD/UniversalScanDriver_V1.02.19.exe" "Driver.exe" }
-        "2" { Invoke-BaixarEAbrir "Revo Unistaller" "https://revouninstaller.b-cdn.net/ruf272/RevoUninstaller_Portable.zip" "Revo_zip" }
+        "2" { Invoke-BaixarEAbrir "Revo Unistaller" "https://revouninstaller.b-cdn.net/ruf272/RevoUninstaller_Portable.zip" "Revo.zip" }
         "0" { Show-MainMenu }
         default { Show-AindaMenu }
     }
