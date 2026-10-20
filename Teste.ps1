@@ -370,7 +370,7 @@ function Show-ThermalMenu {
    [1] Tm20X Lan/USB
    [2] Bematech 
    [3] HPRT 
-   [4] HPRT Ares
+   [4] HPRT Ares/Apollo
    [0] Voltar
 "@
     $op = Read-Host "`nDigite a opcao"
@@ -391,7 +391,7 @@ function Show-ThermalMenu {
         }
         "4" {
             Invoke-BaixarEAbrir "HPRT_Ares" `
-                "https://drive.usercontent.google.com/download?id=1K5vTsSQ-ZYxYYuRm_4nhLMKhYgXxqHRX&export=download&confirm=t&uuid=0940aa64-c35c-4a75-ab9c-ebac9850a126" "HPRTAres_driver.zip" `
+                "https://hprtbrasil.com.br/downloads/HPRT_12.0.exe" "HPRTAres/Apollo_driver.exe" `
                 "https://drive.usercontent.google.com/download?id=106KQt6JCRlyL7p9u9jUZNaNZU0zgj5YQ&export=download" "HPRTAres_designer.zip" `
                 "https://drive.usercontent.google.com/download?id=14R2GWMWGyB4TUB_Vp4EJxf5fHoTyaEqr&export=download" "HPRTAres_utility.zip"
                 
