@@ -391,7 +391,7 @@ function Show-ThermalMenu {
         }
         "4" {
             Invoke-BaixarEAbrir "HPRT_Ares" `
-                "https://hprtbrasil.com.br/downloads/HPRT_12.0.exe" "HPRTAres-Apollo_driver.zip" `
+                "https://hprtbrasil.com.br/downloads/HPRT_12.0.exe" "HPRTAresApollo_driver.exe" `
                 "https://drive.usercontent.google.com/download?id=106KQt6JCRlyL7p9u9jUZNaNZU0zgj5YQ&export=download" "HPRTAres_designer.zip" `
                 "https://drive.usercontent.google.com/download?id=14R2GWMWGyB4TUB_Vp4EJxf5fHoTyaEqr&export=download" "HPRTAres_utility.zip"
                 
