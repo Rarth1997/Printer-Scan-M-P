@@ -283,7 +283,7 @@ function Show-MonoMenu {
 "@
     $op = Read-Host "`nDigite a opcao"
     switch ($op) {
-        "1"  { Invoke-Baixar "HP_432" "https://ftp.hp.com/pub/softlib/software13/printers/herbs/LaserMFP432/HP_Laser_MFP_432_Full_Software_and_Drivers_1.09.exe" "HP_432.exe" }
+        "1"  { Invoke-Baixar "HP_432" "https://ftp.hp.com/pub/softlib/software13/printers/herbs/LaserMFP432/HP_Laser_MFP_432_Full_Software_and_Drivers_V1.14.exe" "HP_432.exe" }
         "2"  { Invoke-Baixar "HP_408" "https://ftp.hp.com/pub/softlib/software13/printers/herbs/Laser408/HP_Laser_408_Print_Driver_1.07.exe" "HP_408.exe" }
         "3"  { Invoke-BaixarEAbrir "HP_4003" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4003.zip" }
         "4"  { Invoke-BaixarEAbrir "HP_4103" "https://ftp.hp.com/pub/softlib/software13/printers/UPD/upd-pcl6-win10-x64-8.2.0.26778.zip" "HP_4103.zip" "https://ftp.hp.com/pub/softlib/software13/printers/SJ0001/MFPs/Full_Webpack-63.8.6459-SJ0001_Full_Webpack.exe" "Scan.exe"}
